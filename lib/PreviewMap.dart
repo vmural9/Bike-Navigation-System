@@ -7,6 +7,136 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:math' as math;
 import 'package:fsp/RealtimeNav.dart';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+
+Future<File> _getLocalFile() async {
+  final directory = await getApplicationDocumentsDirectory();
+  return File('${directory.path}/my_data.json');
+}
+
+Future<String> _readJson() async {
+  try {
+    final file = await _getLocalFile();
+    if (await file.exists()) {
+      return await file.readAsString();
+    }
+    return '[]'; // If file doesn't exist, return empty JSON array
+  } catch (e) {
+    print('Error reading JSON file: $e');
+    return '[]';
+  }
+}
+
+Future<void> _updateJsonFile({
+  required String routeName,
+  required String startName,
+  required String endName,
+  required String time,
+  required String distance,
+  required double startLat,
+  required double startLng,
+  required double endLat,
+  required double endLng,
+}) async {
+  String jsonStr = await _readJson();
+  List<dynamic> jsonData = json.decode(jsonStr);
+
+  // Create a new entry
+  Map<String, dynamic> newEntry = {
+    "name": routeName,
+    "startlocation": startName,
+    "endlocation": endName,
+    "time": time,
+    "distance": distance,
+    "startlat": startLat,
+    "startlng": startLng,
+    "endlat": endLat,
+    "endlng": endLng
+  };
+
+  // Add the new entry to the existing JSON data
+  jsonData.add(newEntry);
+  print("Entry successfull");
+  print(newEntry);
+
+  // Write the updated JSON data back to the file
+  await _writeJson(json.encode(jsonData));
+  void _printFileContents() async {
+    final file = await _getLocalFile();
+    if (await file.exists()) {
+      print(await file.readAsString());
+    } else {
+      print('File does not exist.');
+    }
+  }
+
+  ;
+  _printFileContents();
+}
+
+Future<File> _writeJson(String jsonStr) async {
+  final file = await _getLocalFile();
+  return file.writeAsString(jsonStr);
+}
+
+void _fetchRouteDetails({
+  required String routeName,
+  required Location startLocation,
+  required Location endLocation,
+}) async {
+  final LatLng start = LatLng(
+    startLocation.lat ?? 0.0,
+    startLocation.lng ?? 0.0,
+  );
+  final LatLng end = LatLng(
+    endLocation.lat ?? 0.0,
+    endLocation.lng ?? 0.0,
+  );
+  final String origin = '${start.latitude},${start.longitude}';
+  final String destination = '${end.latitude},${end.longitude}';
+
+  final String apiUrl = 'https://maps.googleapis.com/maps/api/directions/json?'
+      'origin=$origin&destination=$destination&mode=bicycling&key=AIzaSyDkKbK_K-0WJuhGvvSbmSL5pEoCiBSWNqY';
+
+  print(apiUrl);
+
+  try {
+    final response = await http.get(Uri.parse(apiUrl));
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      if (data['status'] == 'OK') {
+        final firstLeg = data['routes'][0]['legs'][0];
+
+        String distance = firstLeg['distance']['text']; // e.g., "0.8 mi"
+        String duration = firstLeg['duration']['text']; // e.g., "5 mins"
+        String startName = firstLeg['start_address']; // Start location address
+        String endName = firstLeg['end_address']; // End location address
+
+        double startLat = firstLeg['start_location']['lat'];
+        double startLng = firstLeg['start_location']['lng'];
+        double endLat = firstLeg['end_location']['lat'];
+        double endLng = firstLeg['end_location']['lng'];
+        _updateJsonFile(
+            routeName: routeName,
+            startName: startName,
+            endName: endName,
+            time: duration,
+            distance: distance,
+            startLat: startLat,
+            startLng: startLng,
+            endLat: endLat,
+            endLng: endLng);
+      } else {
+        print('Directions API error: ${data['status']}');
+      }
+    } else {
+      print('HTTP error: ${response.statusCode}');
+    }
+  } catch (e) {
+    print('Error fetching directions: $e');
+  }
+}
 
 class PreviewScreen extends StatefulWidget {
   final DetailsResult? startPosition;
@@ -209,6 +339,36 @@ class _MapScreenState extends State<PreviewScreen> {
     );
   }
 
+  void _showRouteNameDialog(BuildContext context) {
+    TextEditingController routeNameController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Enter Route Name'),
+          content: TextField(
+            controller: routeNameController,
+            decoration: InputDecoration(hintText: "Route Name"),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Save'),
+              onPressed: () {
+                Navigator.of(context).pop();
+                _fetchRouteDetails(
+                  routeName: routeNameController.text,
+                  startLocation: widget.startPosition!.geometry!.location!,
+                  endLocation: widget.endPosition!.geometry!.location!,
+                );
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -326,6 +486,12 @@ class _MapScreenState extends State<PreviewScreen> {
                       'Distance to Destination: $_selectedPolylineDistance miles',
                       style: TextStyle(
                           fontWeight: FontWeight.bold, fontSize: 20.0),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        _showRouteNameDialog(context);
+                      },
+                      child: Text('Save Route'),
                     ),
                   ],
                 ),

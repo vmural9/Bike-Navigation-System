@@ -1,8 +1,8 @@
-
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_place/google_place.dart';
 import 'package:fsp/PreviewMap.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class NavigationPage extends StatefulWidget {
   @override
@@ -47,8 +47,6 @@ class _NavigationPageState extends State<NavigationPage> {
 
     startFocusNode = FocusNode();
     endFocusNode = FocusNode();
-
-    
   }
 
   void getCurrentLocation() async {
@@ -118,11 +116,11 @@ class _NavigationPageState extends State<NavigationPage> {
                       controller: _startSearchFieldController,
                       autofocus: false,
                       focusNode: startFocusNode,
-                      style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                          color: Colors.black, fontWeight: FontWeight.bold),
                       decoration: InputDecoration(
                         border: OutlineInputBorder(),
                         labelText: "Start Location",
-                        
                         filled: _startSearchFieldController.text.isNotEmpty &&
                             startPosition != null,
                         suffixIcon: isMarkerClicked
@@ -131,7 +129,8 @@ class _NavigationPageState extends State<NavigationPage> {
                                 height: 24.0, // circular icon height
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2.0,
-                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.black),
                                 ),
                               )
                             : _startSearchFieldController.text.isNotEmpty
@@ -161,7 +160,6 @@ class _NavigationPageState extends State<NavigationPage> {
                     ),
                     Positioned(
                       right: 50.0,
-                      
                       child: Icon(Icons.location_on, color: Colors.red),
                     ),
                   ],
@@ -169,20 +167,18 @@ class _NavigationPageState extends State<NavigationPage> {
               ),
             ),
             Padding(
-              
               padding: const EdgeInsets.all(16.0),
               child: TextField(
                 controller: _endSearchFieldController,
                 autofocus: false,
                 focusNode: endFocusNode,
-                style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                style:
+                    TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
                 enabled: _startSearchFieldController.text.isNotEmpty &&
                     startPosition != null,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(),
                   labelText: "End Location",
-                  
-                  
                   filled: _endSearchFieldController.text.isNotEmpty,
                   suffixIcon: _endSearchFieldController.text.isNotEmpty
                       ? IconButton(
@@ -213,6 +209,7 @@ class _NavigationPageState extends State<NavigationPage> {
               padding: const EdgeInsets.all(8.0),
               child: ElevatedButton(
                 onPressed: () {
+                  print(startPosition);
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -243,9 +240,7 @@ class _NavigationPageState extends State<NavigationPage> {
                   onTap: () async {
                     final placeId = predictions[index].placeId!;
                     final details = await googlePlace.details.get(placeId);
-                    if (details != null &&
-                        details.result != null &&
-                        mounted) {
+                    if (details != null && details.result != null && mounted) {
                       if (startFocusNode.hasFocus) {
                         setState(() {
                           startPosition = details.result;
@@ -272,6 +267,3 @@ class _NavigationPageState extends State<NavigationPage> {
     );
   }
 }
-
-
-

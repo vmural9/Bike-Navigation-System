@@ -1,0 +1,1 @@
+ C:\\Users\\karrt\\OneDrive\\Documents\\Code\\522\\CHIbikeroutegen\\flutter-app\\Bike-Navigation-System\\.dart_tool\\flutter_build\\448f6ff470bbde8453e531746bbc2c52\\native_assets.yaml: 

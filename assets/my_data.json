@@ -1,0 +1,49 @@
+[
+    {
+      "name": "Park Loop Ride",
+      "startlocation": "Central Park West Entrance, NY",
+      "endlocation": "Central Park South Exit, NY",
+      "time": 15,
+      "distance": 2.5,
+      "startlat":123,
+      "startlng":123,
+      "endlat":123,
+      "endlng":123
+
+    },
+    {
+      "name": "River Trail Ride",
+      "startlocation": "Riverfront Park, Springfield",
+      "endlocation": "Old Ferry Dock, Springfield",
+      "time": 30,
+      "distance": 5.5
+    },
+    {
+      "name": "Downtown to Uptown",
+      "startlocation": "City Hall, Downtown",
+      "endlocation": "Museum of Natural History, Uptown",
+      "time": 20,
+      "distance": 3.7
+    },
+    {
+      "name": "Beachfront Leisure Ride",
+      "startlocation": "Pier 42, Riverside",
+      "endlocation": "Brighton Beach, Riverside",
+      "time": 45,
+      "distance": 8.2
+    },
+    {
+      "name": "Suburban Trails",
+      "startlocation": "Greenwood Entrance, Elm St.",
+      "endlocation": "Sunset Park, Oak Ave.",
+      "time": 25,
+      "distance": 4.0
+    },
+    {
+      "name": "Hillside Challenge Route",
+      "startlocation": "Hilltop Plaza, Boulder Road",
+      "endlocation": "Lookout Point, Summit Road",
+      "time": 65,
+      "distance": 10.3
+    }
+  ]
