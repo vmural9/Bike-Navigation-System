@@ -9,7 +9,6 @@ import 'package:flutter_tts/flutter_tts.dart';
 import 'package:flutter/services.dart';
 import 'dart:math' show pi, sin, cos, sqrt, asin;
 import 'package:wakelock/wakelock.dart';
-import 'package:flutter_compass/flutter_compass.dart';
 
 IconData getInstructionIcon(String instruction) {
   if (instruction.contains("left")) {
